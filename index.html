@@ -3,36 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>论坛战力评估 - 顶点觉醒版</title>
+    <title>论坛战力评估 - 艺术字增强版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --theme-color: #2c3e50; --bg: #f4f7f6; }
-        body { font-family: 'PingFang SC', sans-serif; background: var(--bg); padding: 20px; display: flex; justify-content: center; transition: all 0.5s ease; }
-        .wrapper { max-width: 1000px; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 30px; }
+        :root { --theme-color: #2c3e50; --bg: #f0f2f5; }
+        body { font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: var(--bg); padding: 20px; display: flex; justify-content: center; transition: 0.5s; }
+        .wrapper { max-width: 1000px; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; gap: 30px; }
         .inputs { flex: 1; min-width: 320px; }
         .chart-box { flex: 1.3; min-width: 380px; text-align: center; }
-        h1 { width: 100%; text-align: center; color: var(--theme-color); margin: 0 0 20px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h1 { width: 100%; text-align: center; color: var(--theme-color); margin-bottom: 20px; font-weight: 900; letter-spacing: 2px; }
         
-        .avatar-upload { margin-bottom: 15px; padding: 10px; border: 2px dashed #ddd; border-radius: 12px; text-align: center; background: #fafafa; }
-        #avatarPreview { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; display: none; margin: 5px auto; border: 2px solid var(--theme-color); }
+        .avatar-upload { margin-bottom: 15px; padding: 10px; border: 2px dashed #ddd; border-radius: 12px; text-align: center; background: #fafafa; transition: 0.3s; }
+        .avatar-upload:hover { border-color: var(--theme-color); }
+        #avatarPreview { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; margin: 5px auto; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
         .stat-group { margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; }
         .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .num-input { width: 60px; border: 1px solid #ccc; border-radius: 6px; text-align: center; color: var(--theme-color); font-weight: 800; }
+        .num-input { width: 65px; border: 1px solid #ccc; border-radius: 6px; text-align: center; color: var(--theme-color); font-weight: 800; padding: 3px; font-size: 14px; }
         
         input[type="range"] { width: 100%; accent-color: var(--theme-color); cursor: pointer; }
         
-        .awakening-zone { margin-top: 15px; padding: 15px; background: #fff8f0; border: 1px solid #ffeaa7; border-radius: 12px; display: none; }
-        .awakening-zone label { font-weight: bold; font-size: 14px; color: #d35400; display: block; margin-bottom: 5px; }
-        #titleSelector { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-weight: bold; }
+        .awakening-zone { margin-top: 15px; padding: 15px; background: #fffcf0; border: 2px solid #f1c40f; border-radius: 12px; display: none; animation: flash 1s infinite alternate; }
+        @keyframes flash { from { opacity: 0.8; } to { opacity: 1; } }
+        
+        #titleSelector { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; background: white; cursor: pointer; }
 
-        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
-        button { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-group { display: flex; gap: 12px; margin-top: 25px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .btn-gen { background: var(--theme-color); }
         .btn-exp { background: #27ae60; }
-        button:hover { opacity: 0.8; transform: translateY(-3px); }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-        #canvasHolder { background: white; padding: 5px; border-radius: 15px; border: 1px solid #eee; }
+        #canvasHolder { background: white; padding: 10px; border-radius: 15px; border: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -43,11 +45,11 @@
     <div class="inputs">
         <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
             <div style="flex: 2;">
-                <label style="font-weight:bold; font-size: 13px;">论坛用户名</label>
-                <input type="text" id="username" value="匿名水友" maxlength="12" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+                <label style="font-weight:900; font-size: 13px; color: #666;">USER ID</label>
+                <input type="text" id="username" value="匿名水友" maxlength="12" style="width:100%; padding:10px; border:2px solid #eee; border-radius:8px; font-weight: bold;">
             </div>
             <div class="avatar-upload" style="flex: 1; margin:0; padding:5px;">
-                <label style="font-size:11px; cursor:pointer;">📸 上传头像
+                <label style="font-size:11px; cursor:pointer; font-weight: bold;">📸 上传头像
                     <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatar(this)">
                 </label>
                 <img id="avatarPreview" src="">
@@ -57,13 +59,13 @@
         <div id="controls"></div>
 
         <div id="awakeningZone" class="awakening-zone">
-            <label>✨ 检测到多项并列！请选择你的觉醒倾向：</label>
+            <label>✨ 多重天命抉择：</label>
             <select id="titleSelector" onchange="renderChart()"></select>
         </div>
 
         <div class="btn-group">
-            <button class="btn-gen" onclick="renderChart()">🔄 生成战力图</button>
-            <button class="btn-exp" onclick="exportImage()">💾 导出图像</button>
+            <button class="btn-gen" onclick="renderChart()">🔄 重新觉醒</button>
+            <button class="btn-exp" onclick="exportImage()">💾 导出战力大图</button>
         </div>
     </div>
 
@@ -77,13 +79,13 @@
 <script>
     const dimNames = ['攻击性', '辩论能力', '发帖质量', '活跃度', '专业度', '淫乱度'];
     const configMap = {
-        '攻击性': { color: '#ff4d4d', sub: 'rgba(255, 77, 77, 0.2)', title: '狂战士', quote: '生而无畏，战至终章' },
-        '辩论能力': { color: '#3498db', sub: 'rgba(52, 152, 219, 0.2)', title: '智者', quote: '你好，苏格拉底' },
-        '发帖质量': { color: '#2ecc71', sub: 'rgba(46, 204, 113, 0.2)', title: '天使', quote: '其称文小而指极大，举类迩而见义远' },
-        '活跃度': { color: '#e67e22', sub: 'rgba(230, 126, 34, 0.2)', title: '不死者', quote: '美丽，强大，不死' },
-        '专业度': { color: '#2c3e50', sub: 'rgba(44, 62, 80, 0.2)', title: '专家', quote: '高山仰止，景行行止' },
-        '淫乱度': { color: '#ff9ff3', sub: 'rgba(255, 159, 243, 0.2)', title: '魅魔', quote: '色？空？' },
-        '六角龙': { color: '#f1c40f', sub: 'rgba(241, 196, 15, 0.2)', title: '六角龙', quote: 'suen？' } // 隐藏称号
+        '攻击性': { color: '#ff3e3e', sub: 'rgba(255, 62, 62, 0.15)', title: '狂战士', quote: '生而无畏，战至终章' },
+        '辩论能力': { color: '#2980b9', sub: 'rgba(41, 128, 185, 0.15)', title: '智者', quote: '你好，苏格拉底' },
+        '发帖质量': { color: '#27ae60', sub: 'rgba(39, 174, 96, 0.15)', title: '天使', quote: '其称文小而指极大，举类迩而见义远' },
+        '活跃度': { color: '#e67e22', sub: 'rgba(230, 126, 34, 0.15)', title: '不死者', quote: '美丽，强大，不死' },
+        '专业度': { color: '#2c3e50', sub: 'rgba(44, 62, 80, 0.15)', title: '专家', quote: '高山仰止，景行行止' },
+        '淫乱度': { color: '#fd79a8', sub: 'rgba(253, 121, 168, 0.15)', title: '魅魔', quote: '色？空？' },
+        '六角龙': { color: '#d4af37', sub: 'rgba(212, 175, 55, 0.15)', title: '六角龙', quote: 'suen？' }
     };
 
     let radarChart, userAvatarImg = null;
@@ -93,7 +95,7 @@
         dimNames.forEach((name, i) => {
             container.innerHTML += `
                 <div class="stat-group">
-                    <div class="label-row"><label>${name}</label>
+                    <div class="label-row"><label style="font-weight: 700;">${name}</label>
                     <input type="number" id="n${i+1}" min="1" max="5" step="0.01" value="3.00" class="num-input" oninput="sync(${i+1},'n')"></div>
                     <input type="range" id="v${i+1}" min="1" max="5" step="0.01" value="3.00" oninput="sync(${i+1},'v')">
                 </div>`;
@@ -122,31 +124,23 @@
     function checkTies() {
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
         const maxVal = Math.max(...vals);
-        
-        // 检查隐藏彩蛋：六角龙 (全部 >= 4.5)
         const isDragon = vals.every(v => v >= 4.5);
         const zone = document.getElementById('awakeningZone');
         const selector = document.getElementById('titleSelector');
 
-        if (isDragon) {
-            zone.style.display = 'none'; // 六角龙是唯一顶点，不需要选择
-        } else {
+        if (isDragon) { zone.style.display = 'none'; } else {
             const winners = [];
             vals.forEach((v, i) => { if(v === maxVal) winners.push(dimNames[i]); });
             if (winners.length > 1 && maxVal >= 4.0) {
                 zone.style.display = 'block';
-                const oldVal = selector.value;
-                selector.innerHTML = '';
+                const oldVal = selector.value; selector.innerHTML = '';
                 winners.forEach(name => {
                     const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.innerText = `${name} (称号: ${configMap[name].title})`;
+                    opt.value = name; opt.innerText = `觉醒成为: ${configMap[name].title}`;
                     selector.appendChild(opt);
                 });
                 if (winners.includes(oldVal)) selector.value = oldVal;
-            } else {
-                zone.style.display = 'none';
-            }
+            } else { zone.style.display = 'none'; }
         }
         updateTheme();
     }
@@ -155,19 +149,12 @@
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
         const maxVal = Math.max(...vals);
         const zone = document.getElementById('awakeningZone');
-        
         let cfg;
         let isAwakened = maxVal >= 4.0;
 
-        // 优先级判断：六角龙 > 手动选择 > 默认最高
-        if (vals.every(v => v >= 4.5)) {
-            cfg = configMap['六角龙'];
-            isAwakened = true;
-        } else if (zone.style.display === 'block') {
-            cfg = configMap[document.getElementById('titleSelector').value];
-        } else {
-            cfg = configMap[dimNames[vals.indexOf(maxVal)]];
-        }
+        if (vals.every(v => v >= 4.5)) { cfg = configMap['六角龙']; isAwakened = true; } 
+        else if (zone.style.display === 'block') { cfg = configMap[document.getElementById('titleSelector').value]; } 
+        else { cfg = configMap[dimNames[vals.indexOf(maxVal)]]; }
 
         document.documentElement.style.setProperty('--theme-color', cfg.color);
         return { cfg, isAwakened };
@@ -187,37 +174,60 @@
             afterDraw: (chart) => {
                 const {ctx, width, height} = chart;
                 ctx.save();
+                
+                // 绘制纯白背景
                 ctx.globalCompositeOperation = 'destination-over';
                 ctx.fillStyle = 'white'; ctx.fillRect(0,0,width,height);
                 ctx.globalCompositeOperation = 'source-over';
 
+                // 1. 用户名装饰 (带阴影)
                 ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0,0,0,0.1)';
+                ctx.shadowBlur = 4;
                 ctx.fillStyle = '#333';
-                ctx.font = 'bold 22px sans-serif';
-                ctx.fillText(username + ' 的战力评估', width/2, 40);
+                ctx.font = '900 24px "PingFang SC", sans-serif';
+                ctx.fillText(username.toUpperCase(), width/2, 45);
+                ctx.shadowBlur = 0;
 
-                let avatarY = 60;
+                // 2. 头像 (带描边)
+                let avatarY = 65;
                 if(userAvatarImg) {
                     ctx.save();
-                    ctx.beginPath(); ctx.arc(width/2, avatarY + 30, 30, 0, Math.PI*2); ctx.closePath(); ctx.clip();
-                    ctx.drawImage(userAvatarImg, width/2 - 30, avatarY, 60, 60);
+                    ctx.beginPath(); ctx.arc(width/2, avatarY + 35, 35, 0, Math.PI*2); ctx.clip();
+                    ctx.drawImage(userAvatarImg, width/2 - 35, avatarY, 70, 70);
                     ctx.restore();
+                    ctx.strokeStyle = cfg.color; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.arc(width/2, avatarY + 35, 35, 0, Math.PI*2); ctx.stroke();
                 }
 
+                // 3. 称号与赠言 (视觉中心)
                 if(isAwakened) {
+                    // 称号：艺术黑体 + 字母间距模拟
                     ctx.fillStyle = cfg.color;
-                    ctx.font = 'bold 32px sans-serif';
-                    ctx.fillText(`【${cfg.title}】`, width/2, avatarY + 110);
-                    ctx.fillStyle = '#666';
-                    ctx.font = 'italic 16px sans-serif';
-                    ctx.fillText(cfg.quote, width/2, avatarY + 140);
+                    ctx.font = '900 42px "PingFang SC", "Microsoft YaHei"';
+                    ctx.fillText(`【 ${cfg.title} 】`, width/2, avatarY + 135);
+
+                    // 赠言背景条 (淡淡的装饰感)
+                    const textWidth = ctx.measureText(cfg.quote).width + 60;
+                    ctx.fillStyle = 'rgba(0,0,0,0.03)';
+                    ctx.fillRect(width/2 - textWidth/2, avatarY + 155, textWidth, 30);
+
+                    // 赠言：优雅斜体 + 加大间距
+                    ctx.fillStyle = '#555';
+                    ctx.font = 'italic 700 18px "Georgia", serif';
+                    ctx.fillText(`“ ${cfg.quote} ”`, width/2, avatarY + 175);
                 }
 
+                // 4. 底部总分 (巨型字体 + 渐变感效果)
                 ctx.fillStyle = cfg.color;
-                ctx.font = 'bold 50px Arial';
-                ctx.fillText(totalScore, width/2, height - 60);
-                ctx.font = '14px sans-serif'; ctx.fillStyle = '#999';
-                ctx.fillText('综合战力评分', width/2, height - 35);
+                ctx.font = '900 70px "Arial Black"';
+                ctx.fillText(totalScore, width/2, height - 70);
+                
+                ctx.fillStyle = '#999';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.letterSpacing = "2px";
+                ctx.fillText('POWER LEVEL SUMMARY', width/2, height - 40);
+                
                 ctx.restore();
             }
         };
@@ -228,14 +238,27 @@
                 labels: dimNames,
                 datasets: [{
                     data: vals,
-                    backgroundColor: cfg.sub, borderColor: cfg.color, borderWidth: 4,
-                    pointBackgroundColor: cfg.color, pointRadius: 4
+                    backgroundColor: cfg.sub,
+                    borderColor: cfg.color,
+                    borderWidth: 5,
+                    pointBackgroundColor: cfg.color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
                 }]
             },
             options: {
                 responsive: false,
-                layout: { padding: { top: 200, bottom: 100 } },
-                scales: { r: { min: 0, max: 5, ticks: { display: false }, pointLabels: { font: { size: 16, weight: 'bold' } } } },
+                layout: { padding: { top: 220, bottom: 120 } },
+                scales: { 
+                    r: { 
+                        min: 0, max: 5,
+                        ticks: { display: false },
+                        grid: { color: 'rgba(0,0,0,0.05)', lineWidth: 1.5 },
+                        angleLines: { color: 'rgba(0,0,0,0.05)' },
+                        pointLabels: { font: { size: 16, weight: '900' }, color: '#444' }
+                    } 
+                },
                 plugins: { legend: { display: false } }
             },
             plugins: [customPlugin]
@@ -245,12 +268,11 @@
     function exportImage() {
         renderChart();
         setTimeout(() => {
-            const canvas = document.getElementById('radarCanvas');
             const link = document.createElement('a');
             link.download = `战力图_${document.getElementById('username').value}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.href = document.getElementById('radarCanvas').toDataURL('image/png');
             link.click();
-        }, 150);
+        }, 200);
     }
 
     window.onload = () => { initInputs(); renderChart(); };
