@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>论坛战力评估 - 精准数值版</title>
+    <title>论坛战力评估</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --theme-color: #2c3e50; --bg: #f0f2f5; }
@@ -13,7 +13,7 @@
         .chart-box { flex: 1.5; min-width: 400px; text-align: center; }
         h1 { width: 100%; text-align: center; color: var(--theme-color); font-weight: 900; margin-bottom: 20px; }
         
-        .stat-group { margin-bottom: 12px; background: #fafafa; padding: 10px; border-radius: 12px; border: 1px solid #eee; }
+        .stat-group { margin-bottom: 10px; background: #fafafa; padding: 10px; border-radius: 12px; border: 1px solid #eee; }
         .label-row { display: flex; justify-content: space-between; align-items: center; }
         .num-input { width: 65px; border: 1px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; padding: 3px; color: var(--theme-color); }
         input[type="range"] { width: 100%; accent-color: var(--theme-color); cursor: pointer; margin-top: 8px; }
@@ -34,29 +34,29 @@
     
     <div class="inputs">
         <div style="margin-bottom: 20px;">
-            <label style="font-weight:900; font-size: 12px; color: #999;">USER ID</label>
+            <label style="font-weight:900; font-size: 11px; color: #999;">USER ID</label>
             <input type="text" id="username" value="匿名水友" style="width:100%; padding:12px; border:2px solid #eee; border-radius:10px; font-weight: bold;">
             <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatar(this)">
-            <button onclick="document.getElementById('avatarInput').click()" style="background:#f8f9fa; color:#666; margin-top:10px; padding:10px; font-size:12px; width:100%; border:1px solid #ddd; border-radius:8px; cursor:pointer;">📸 上传个人头像</button>
+            <button onclick="document.getElementById('avatarInput').click()" style="background:#f8f9fa; color:#666; margin-top:10px; padding:10px; font-size:12px; width:100%; border:1px solid #ddd; border-radius:8px; cursor:pointer;">📸 上传头像</button>
             <img id="avatarPreview">
         </div>
 
         <div id="controls"></div>
 
         <div id="awakeningZone" style="display:none; margin: 15px 0; padding: 15px; background: #fffcf0; border: 1px solid #f1c40f; border-radius: 10px;">
-            <label style="font-size:12px; font-weight:bold;">✨ 检测到多项满级，请选择觉醒形态：</label>
+            <label style="font-size:12px; font-weight:bold;">✨ 天命选择：</label>
             <select id="titleSelector" onchange="renderChart()" style="width:100%; padding:8px; margin-top:5px; border-radius:5px;"></select>
         </div>
 
         <div class="btn-group">
-            <button class="btn-gen" onclick="renderChart()">🔄 实时刷新</button>
-            <button class="btn-exp" onclick="exportImage()">💾 导出大图</button>
+            <button class="btn-gen" onclick="renderChart()">🔄 刷新</button>
+            <button class="btn-exp" onclick="exportImage()">💾 导出</button>
         </div>
     </div>
 
     <div class="chart-box">
         <div id="canvasHolder">
-            <canvas id="radarCanvas" width="600" height="850"></canvas>
+            <canvas id="radarCanvas" width="600" height="720"></canvas>
         </div>
     </div>
 </div>
@@ -70,6 +70,7 @@
         '活跃度': { color: '#e67e22', sub: 'rgba(230, 126, 34, 0.15)', title: '不死者', quote: '美丽，强大，不死' },
         '专业度': { color: '#2c3e50', sub: 'rgba(44, 62, 80, 0.15)', title: '专家', quote: '高山仰止，景行行止' },
         '淫乱度': { color: '#fd79a8', sub: 'rgba(253, 121, 168, 0.15)', title: '魅魔', quote: '色？空？' },
+        '近战魅魔': { color: '#8e44ad', sub: 'rgba(142, 68, 173, 0.18)', title: '近战魅魔', quote: '尖牙利嘴，蜜语甜言' },
         '六角龙': { color: '#d4af37', sub: 'rgba(212, 175, 55, 0.2)', title: '六角龙', quote: '完美的终极形态' },
         '耕耘者': { color: '#7f8c8d', sub: 'rgba(127, 140, 141, 0.1)', title: '耕耘者', quote: '风里雨里，suen吧等你' }
     };
@@ -110,7 +111,15 @@
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
         const maxVal = Math.max(...vals);
         const zone = document.getElementById('awakeningZone'), selector = document.getElementById('titleSelector');
-        if (vals.every(v => v >= 4.5) || maxVal < 4.0) { zone.style.display = 'none'; return; }
+        
+        const isDragon = vals.every(v => v >= 4.5);
+        const isMeleeSuccubus = (vals[0] >= 4.0 && vals[5] >= 4.0); // 攻击性[0] & 淫乱度[5]
+        
+        if (isDragon || isMeleeSuccubus || maxVal < 4.0) { 
+            zone.style.display = 'none'; 
+            return; 
+        }
+
         const winners = [];
         vals.forEach((v, i) => { if(v === maxVal) winners.push(dimNames[i]); });
         if (winners.length > 1) {
@@ -129,10 +138,19 @@
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
         const maxVal = Math.max(...vals);
         let key;
-        if (vals.every(v => v >= 4.5)) key = '六角龙';
-        else if (maxVal < 4.0) key = '耕耘者';
-        else if (document.getElementById('awakeningZone').style.display === 'block') key = document.getElementById('titleSelector').value;
-        else key = dimNames[vals.indexOf(maxVal)];
+        
+        // 判定逻辑优先级
+        if (vals.every(v => v >= 4.5)) {
+            key = '六角龙';
+        } else if (vals[0] >= 4.0 && vals[5] >= 4.0) {
+            key = '近战魅魔';
+        } else if (maxVal < 4.0) {
+            key = '耕耘者';
+        } else if (document.getElementById('awakeningZone').style.display === 'block') {
+            key = document.getElementById('titleSelector').value;
+        } else {
+            key = dimNames[vals.indexOf(maxVal)];
+        }
 
         const cfg = configMap[key];
         const canvas = document.getElementById('radarCanvas');
@@ -140,59 +158,36 @@
         if (radarChart) radarChart.destroy();
 
         const customPlugin = {
-            id: 'customDecorator',
-            // afterDatasetsDraw 确保数值文字写在雷达图图层的最上方
-            afterDatasetsDraw: (chart) => {
-                const {ctx, scales: {r}} = chart;
-                ctx.save();
-                ctx.font = 'bold 14px Arial';
-                ctx.fillStyle = cfg.color;
-                ctx.textAlign = 'center';
-
-                // 核心逻辑：遍历每个数据点并计算其 Canvas 坐标
-                chart.data.datasets[0].data.forEach((value, i) => {
-                    // 使用 Chart.js 内置方法获取极坐标点位置
-                    const point = r.getPointPositionForValue(i, value);
-                    
-                    // 计算文字偏移方向（从中心向外推 15 像素）
-                    const angle = r.getIndexAngle(i) - Math.PI / 2;
-                    const offsetX = Math.cos(angle) * 15;
-                    const offsetY = Math.sin(angle) * 15;
-
-                    // 绘制带描边的数值，确保在深色背景下也清晰
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 3;
-                    ctx.strokeText(value.toFixed(2), point.x + offsetX, point.y + offsetY);
-                    ctx.fillText(value.toFixed(2), point.x + offsetX, point.y + offsetY);
-                });
-                ctx.restore();
-            },
+            id: 'tightLayout',
             beforeDraw: (chart) => {
                 const {ctx, width, height} = chart;
                 ctx.save();
                 ctx.fillStyle = 'white'; ctx.fillRect(0,0,width,height);
                 ctx.textAlign = 'center';
-                // 绘制 ID
-                ctx.fillStyle = '#222'; ctx.font = 'bold 26px sans-serif';
-                ctx.fillText((document.getElementById('username').value || '匿名水友').toUpperCase(), width/2, 50);
                 
-                let y = 100;
+                // 1. ID
+                ctx.fillStyle = '#333'; ctx.font = 'bold 26px sans-serif';
+                ctx.fillText((document.getElementById('username').value || '匿名水友').toUpperCase(), width/2, 45);
+                
+                let y = 90;
                 if(userAvatarImg) {
                     ctx.save(); ctx.beginPath(); ctx.arc(width/2, y, 35, 0, Math.PI*2); ctx.clip();
                     ctx.drawImage(userAvatarImg, width/2-35, y-35, 70, 70); ctx.restore();
-                    ctx.strokeStyle = cfg.color; ctx.lineWidth = 3; ctx.stroke(); y += 85;
-                }
+                    ctx.strokeStyle = cfg.color; ctx.lineWidth = 3; ctx.stroke(); 
+                    y += 80;
+                } else { y += 25; }
 
-                ctx.fillStyle = cfg.color; ctx.font = '900 45px "PingFang SC"';
+                // 2. 称号与赠言 (拉近距离)
+                ctx.fillStyle = cfg.color; ctx.font = '900 46px "PingFang SC"';
                 ctx.fillText(`【 ${cfg.title} 】`, width/2, y);
-                ctx.fillStyle = '#666'; ctx.font = 'italic 18px serif';
-                ctx.fillText(`“ ${cfg.quote} ”`, width/2, y + 45);
+                
+                ctx.fillStyle = '#555'; ctx.font = 'italic 18px serif';
+                ctx.fillText(`“ ${cfg.quote} ”`, width/2, y + 42);
 
+                // 3. 总分 (移至最底部)
                 const total = ((vals.reduce((a,b)=>a+b, 0)/30)*100).toFixed(2);
-                ctx.fillStyle = cfg.color; ctx.font = '900 80px Arial';
-                ctx.fillText(total, width/2, height - 70);
-                ctx.fillStyle = '#aaa'; ctx.font = 'bold 12px sans-serif';
-                ctx.fillText('POWERED BY GENESIS EVALUATION', width/2, height - 40);
+                ctx.fillStyle = cfg.color; ctx.font = '900 70px Arial';
+                ctx.fillText(total, width/2, height - 55);
                 ctx.restore();
             }
         };
@@ -206,22 +201,29 @@
                     backgroundColor: cfg.sub,
                     borderColor: cfg.color,
                     borderWidth: 5,
-                    pointRadius: 6,
+                    pointRadius: 5,
                     pointBackgroundColor: cfg.color,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    pointBorderColor: '#fff'
                 }]
             },
             options: {
                 responsive: false,
-                layout: { padding: { top: 320, bottom: 150, left: 60, right: 60 } },
+                // 将 Padding Top 进一步缩小，拉近图表与文字距离
+                layout: { padding: { top: 200, bottom: 110, left: 80, right: 80 } },
                 scales: { 
                     r: { 
                         min: 0, max: 5, suggestedMax: 5,
                         ticks: { display: false },
                         grid: { color: 'rgba(0,0,0,0.08)' },
                         angleLines: { color: 'rgba(0,0,0,0.08)' },
-                        pointLabels: { font: { size: 17, weight: 'bold' }, color: '#333', padding: 25 }
+                        pointLabels: { 
+                            font: { size: 16, weight: 'bold' }, 
+                            color: '#333',
+                            padding: 15,
+                            callback: function(label, index) {
+                                return `${label} ${vals[index].toFixed(2)}`;
+                            }
+                        }
                     } 
                 },
                 plugins: { legend: { display: false } }
@@ -232,7 +234,7 @@
 
     function exportImage() {
         const link = document.createElement('a');
-        link.download = `评估_${document.getElementById('username').value}.png`;
+        link.download = `战力_${document.getElementById('username').value}.png`;
         link.href = document.getElementById('radarCanvas').toDataURL('image/png', 1.0);
         link.click();
     }
