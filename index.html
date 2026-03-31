@@ -2,141 +2,126 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>论坛战力六维图生成器</title>
+    <title>论坛用户战力评估系统 (精确版)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #2c3e50; --accent: #e74c3c; }
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: var(--primary); padding: 20px; }
-        .wrapper { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 30px; }
+        body { font-family: 'PingFang SC', sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
+        .wrapper { max-width: 900px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 30px; }
         .inputs { flex: 1; min-width: 300px; }
         .chart-box { flex: 1.2; min-width: 350px; text-align: center; }
         .stat-row { display: flex; align-items: center; margin-bottom: 15px; }
-        .stat-row label { width: 80px; font-weight: bold; }
-        .stat-row input { flex: 1; margin: 0 10px; cursor: pointer; }
-        .val-display { width: 20px; font-weight: bold; color: var(--accent); }
-        .title-display { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-top: 10px; }
-        .score-num { font-size: 3rem; font-weight: 900; margin: 10px 0; color: var(--primary); }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #34495e; transform: translateY(-2px); }
-        h1 { text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
+        .stat-row label { width: 90px; font-weight: bold; font-size: 14px; }
+        /* 让滑块支持微调 */
+        .stat-row input[type="range"] { flex: 1; margin: 0 10px; }
+        .val-display { width: 45px; font-weight: bold; color: var(--accent); text-align: right; }
+        .score-num { font-size: 3rem; font-weight: 900; color: var(--primary); margin: 10px 0; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; }
+        h1 { text-align: center; width: 100%; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>📊 论坛用户战力评估 (Beta)</h1>
-
-    <div class="wrapper">
-        <div class="inputs">
-            <div class="stat-row">
-                <label>用户昵称</label>
-                <input type="text" id="username" value="某论坛水友" style="padding: 5px; border: 1px solid #ddd;">
-            </div>
-            <hr>
-            <div class="stat-row">
-                <label title="使人破防的能力">攻击性</label>
-                <input type="range" id="v1" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d1">3</span>
-            </div>
-            <div class="stat-row">
-                <label title="说服别人的能力">辩论能力</label>
-                <input type="range" id="v2" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d2">3</span>
-            </div>
-            <div class="stat-row">
-                <label title="发帖内容质量">发帖质量</label>
-                <input type="range" id="v3" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d3">3</span>
-            </div>
-            <div class="stat-row">
-                <label title="在论坛永生的能力">活跃度</label>
-                <input type="range" id="v4" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d4">3</span>
-            </div>
-            <div class="stat-row">
-                <label title="领域大手子程度">专业度</label>
-                <input type="range" id="v5" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d5">3</span>
-            </div>
-            <div class="stat-row">
-                <label title="一目了然">淫乱度</label>
-                <input type="range" id="v6" min="1" max="5" value="3" oninput="updateUI()">
-                <span class="val-display" id="d6">3</span>
-            </div>
-            <button onclick="renderChart()">生成评估报告</button>
+<div class="wrapper">
+    <h1>📊 论坛战力精密评估</h1>
+    
+    <div class="inputs">
+        <div class="stat-row">
+            <label>用户昵称</label>
+            <input type="text" id="username" value="匿名大佬" style="flex:1; padding:5px;">
         </div>
-
-        <div class="chart-box">
-            <div id="titleResult" class="title-display">初出茅庐</div>
-            <div id="scoreResult" class="score-num">0.0</div>
-            <canvas id="radarCanvas"></canvas>
+        <hr>
+        <div class="stat-row">
+            <label>攻击性</label>
+            <input type="range" id="v1" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d1">3.00</span>
         </div>
+        <div class="stat-row">
+            <label>辩论能力</label>
+            <input type="range" id="v2" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d2">3.00</span>
+        </div>
+        <div class="stat-row">
+            <label>发帖质量</label>
+            <input type="range" id="v3" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d3">3.00</span>
+        </div>
+        <div class="stat-row">
+            <label>活跃度</label>
+            <input type="range" id="v4" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d4">3.00</span>
+        </div>
+        <div class="stat-row">
+            <label>专业度</label>
+            <input type="range" id="v5" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d5">3.00</span>
+        </div>
+        <div class="stat-row">
+            <label>淫乱度</label>
+            <input type="range" id="v6" min="1" max="5" step="0.01" value="3.00" oninput="updateUI()">
+            <span class="val-display" id="d6">3.00</span>
+        </div>
+        <button onclick="renderChart()">更新精密数据</button>
     </div>
 
-    <script>
-        let radarChart;
-        const labels = ['攻击性', '辩论能力', '发帖质量', '活跃度', '专业度', '淫乱度'];
-        const titles = ['键盘战神', '雄辩家', '优质博主', '坛中幽灵', '领域大触', '纯爱战神(反向)'];
+    <div class="chart-box">
+        <div id="scoreResult" class="score-num">60.00分</div>
+        <canvas id="radarCanvas"></canvas>
+    </div>
+</div>
 
-        function updateUI() {
-            for(let i=1; i<=6; i++) {
-                document.getElementById('d'+i).innerText = document.getElementById('v'+i).value;
-            }
+<script>
+    let radarChart;
+
+    function updateUI() {
+        for(let i=1; i<=6; i++) {
+            // 将输入值强制格式化为两位小数显示
+            let val = parseFloat(document.getElementById('v'+i).value).toFixed(2);
+            document.getElementById('d'+i).innerText = val;
+        }
+    }
+
+    function renderChart() {
+        const vals = [];
+        for(let i=1; i<=6; i++) {
+            vals.push(parseFloat(document.getElementById('v'+i).value));
         }
 
-        function getSpecialTitle(vals) {
-            let maxIdx = vals.indexOf(Math.max(...vals));
-            if (vals[maxIdx] < 4) return "普通坛友";
-            return titles[maxIdx];
-        }
+        // 综合评分计算 (百分制，保留两位小数)
+        const totalScore = ((vals.reduce((a, b) => a + b, 0) / 30) * 100).toFixed(2);
+        document.getElementById('scoreResult').innerText = totalScore + "分";
 
-        function renderChart() {
-            const vals = [
-                parseInt(document.getElementById('v1').value),
-                parseInt(document.getElementById('v2').value),
-                parseInt(document.getElementById('v3').value),
-                parseInt(document.getElementById('v4').value),
-                parseInt(document.getElementById('v5').value),
-                parseInt(document.getElementById('v6').value)
-            ];
+        const ctx = document.getElementById('radarCanvas').getContext('2d');
+        if (radarChart) radarChart.destroy();
 
-            // 综合评分逻辑：(总和 / 最大可能总和) * 100
-            const totalScore = ((vals.reduce((a, b) => a + b, 0) / 30) * 100).toFixed(1);
-            document.getElementById('scoreResult').innerText = totalScore;
-            document.getElementById('titleResult').innerText = getSpecialTitle(vals);
-
-            const ctx = document.getElementById('radarCanvas').getContext('2d');
-            
-            if (radarChart) radarChart.destroy();
-
-            radarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: document.getElementById('username').value,
-                        data: vals,
-                        backgroundColor: 'rgba(231, 76, 60, 0.3)',
-                        borderColor: '#e74c3c',
-                        pointBackgroundColor: '#e74c3c',
-                        borderWidth: 3
-                    }]
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['攻击性', '辩论能力', '发帖质量', '活跃度', '专业度', '淫乱度'],
+                datasets: [{
+                    label: document.getElementById('username').value,
+                    data: vals,
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: '#2ecc71',
+                    pointBackgroundColor: '#2ecc71',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 5,
+                        ticks: { stepSize: 1, display: false },
+                        pointLabels: { font: { size: 14 } }
+                    }
                 },
-                options: {
-                    scales: {
-                        r: {
-                            min: 0,
-                            max: 5,
-                            ticks: { stepSize: 1, display: false },
-                            grid: { color: '#ddd' },
-                            pointLabels: { font: { size: 14, weight: 'bold' } }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
 
-        window.onload = () => { updateUI(); renderChart(); };
-    </script>
+    window.onload = () => { updateUI(); renderChart(); };
+</script>
 </body>
 </html>
