@@ -3,53 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>论坛战力评估 - 艺术字增强版</title>
+    <title>论坛战力评估 - 最终校准版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --theme-color: #2c3e50; --bg: #f0f2f5; }
-        body { font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: var(--bg); padding: 20px; display: flex; justify-content: center; transition: 0.5s; }
-        .wrapper { max-width: 1000px; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; gap: 30px; }
+        body { font-family: 'PingFang SC', 'Hiragino Sans GB', sans-serif; background: var(--bg); padding: 20px; display: flex; justify-content: center; }
+        .wrapper { max-width: 1100px; background: white; padding: 30px; border-radius: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.12); display: flex; flex-wrap: wrap; gap: 40px; }
         .inputs { flex: 1; min-width: 320px; }
-        .chart-box { flex: 1.3; min-width: 380px; text-align: center; }
-        h1 { width: 100%; text-align: center; color: var(--theme-color); margin-bottom: 20px; font-weight: 900; letter-spacing: 2px; }
+        .chart-box { flex: 1.5; min-width: 450px; text-align: center; }
+        h1 { width: 100%; text-align: center; color: var(--theme-color); font-weight: 900; letter-spacing: 3px; margin-bottom: 20px; }
         
-        .avatar-upload { margin-bottom: 15px; padding: 10px; border: 2px dashed #ddd; border-radius: 12px; text-align: center; background: #fafafa; transition: 0.3s; }
-        .avatar-upload:hover { border-color: var(--theme-color); }
-        #avatarPreview { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; margin: 5px auto; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .stat-group { margin-bottom: 12px; background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #eee; }
+        .num-input { width: 70px; border: 1px solid #ddd; border-radius: 8px; text-align: center; color: var(--theme-color); font-weight: 800; font-size: 15px; }
+        input[type="range"] { width: 100%; accent-color: var(--theme-color); cursor: pointer; margin-top: 8px; }
+        
+        .awakening-zone { margin: 15px 0; padding: 15px; background: #fdfdfd; border: 2px dashed #ccc; border-radius: 15px; display: none; }
+        #titleSelector { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; }
 
-        .stat-group { margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; }
-        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .num-input { width: 65px; border: 1px solid #ccc; border-radius: 6px; text-align: center; color: var(--theme-color); font-weight: 800; padding: 3px; font-size: 14px; }
-        
-        input[type="range"] { width: 100%; accent-color: var(--theme-color); cursor: pointer; }
-        
-        .awakening-zone { margin-top: 15px; padding: 15px; background: #fffcf0; border: 2px solid #f1c40f; border-radius: 12px; display: none; animation: flash 1s infinite alternate; }
-        @keyframes flash { from { opacity: 0.8; } to { opacity: 1; } }
-        
-        #titleSelector { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; background: white; cursor: pointer; }
-
-        .btn-group { display: flex; gap: 12px; margin-top: 25px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-group { display: flex; gap: 15px; margin-top: 25px; }
+        button { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; color: white; transition: 0.4s; font-size: 16px; }
         .btn-gen { background: var(--theme-color); }
         .btn-exp { background: #27ae60; }
-        button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        button:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        button:disabled { background: #ccc; cursor: wait; }
 
-        #canvasHolder { background: white; padding: 10px; border-radius: 15px; border: 1px solid #eee; }
+        #canvasHolder { background: white; padding: 10px; border-radius: 20px; border: 1px solid #f0f0f0; position: relative; }
+        #loadMask { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; border-radius:20px; z-index:10; }
+        #avatarPreview { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; display: none; margin: 5px auto; border: 3px solid var(--theme-color); }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
-    <h1>⚔️ 论坛战力觉醒系统</h1>
+    <h1>⚔️ 论坛战力评估系统</h1>
     
     <div class="inputs">
-        <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
-            <div style="flex: 2;">
-                <label style="font-weight:900; font-size: 13px; color: #666;">USER ID</label>
-                <input type="text" id="username" value="匿名水友" maxlength="12" style="width:100%; padding:10px; border:2px solid #eee; border-radius:8px; font-weight: bold;">
+        <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label style="font-weight:900; font-size: 11px; color: #999; display: block; margin-bottom: 4px;">USER IDENTIFICATION</label>
+                <input type="text" id="username" value="匿名水友" maxlength="12" style="width:100%; padding:12px; border:2px solid #eee; border-radius:10px; font-weight: bold;">
             </div>
-            <div class="avatar-upload" style="flex: 1; margin:0; padding:5px;">
-                <label style="font-size:11px; cursor:pointer; font-weight: bold;">📸 上传头像
+            <div style="width: 100px; text-align: center;">
+                <label style="font-size:11px; cursor:pointer; color: var(--theme-color); font-weight: bold;">📸 上传头像
                     <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatar(this)">
                 </label>
                 <img id="avatarPreview" src="">
@@ -59,19 +54,20 @@
         <div id="controls"></div>
 
         <div id="awakeningZone" class="awakening-zone">
-            <label>✨ 多重天命抉择：</label>
+            <label style="color: #666; font-size: 13px; font-weight: 800; display: block; margin-bottom: 8px;">✨ 检测到多项并列，请手动赋予天命：</label>
             <select id="titleSelector" onchange="renderChart()"></select>
         </div>
 
         <div class="btn-group">
-            <button class="btn-gen" onclick="renderChart()">🔄 重新觉醒</button>
-            <button class="btn-exp" onclick="exportImage()">💾 导出战力大图</button>
+            <button class="btn-gen" onclick="renderChart()">🔄 重新评估</button>
+            <button class="btn-exp" id="btnExport" onclick="exportImage()" disabled>⏳ 加载资源...</button>
         </div>
     </div>
 
     <div class="chart-box">
         <div id="canvasHolder">
-            <canvas id="radarCanvas" width="550" height="700"></canvas>
+            <div id="loadMask">🛡️ 正在同步觉醒数据库...</div>
+            <canvas id="radarCanvas" width="600" height="850"></canvas>
         </div>
     </div>
 </div>
@@ -79,23 +75,41 @@
 <script>
     const dimNames = ['攻击性', '辩论能力', '发帖质量', '活跃度', '专业度', '淫乱度'];
     const configMap = {
-        '攻击性': { color: '#ff3e3e', sub: 'rgba(255, 62, 62, 0.15)', title: '狂战士', quote: '生而无畏，战至终章' },
-        '辩论能力': { color: '#2980b9', sub: 'rgba(41, 128, 185, 0.15)', title: '智者', quote: '你好，苏格拉底' },
-        '发帖质量': { color: '#27ae60', sub: 'rgba(39, 174, 96, 0.15)', title: '天使', quote: '其称文小而指极大，举类迩而见义远' },
-        '活跃度': { color: '#e67e22', sub: 'rgba(230, 126, 34, 0.15)', title: '不死者', quote: '美丽，强大，不死' },
-        '专业度': { color: '#2c3e50', sub: 'rgba(44, 62, 80, 0.15)', title: '专家', quote: '高山仰止，景行行止' },
-        '淫乱度': { color: '#fd79a8', sub: 'rgba(253, 121, 168, 0.15)', title: '魅魔', quote: '色？空？' },
-        '六角龙': { color: '#d4af37', sub: 'rgba(212, 175, 55, 0.15)', title: '六角龙', quote: 'suen？' }
+        '攻击性': { color: '#ff3e3e', sub: 'rgba(255, 62, 62, 0.15)', title: '狂战士', quote: '生而无畏，战至终章', icon: 'icon_attacker.png' },
+        '辩论能力': { color: '#2980b9', sub: 'rgba(41, 128, 185, 0.15)', title: '智者', quote: '你好，苏格拉底', icon: 'icon_debater.png' },
+        '发帖质量': { color: '#27ae60', sub: 'rgba(39, 174, 96, 0.15)', title: '天使', quote: '其称文小而指极大，举类迩而见义远', icon: 'icon_poster.png' },
+        '活跃度': { color: '#e67e22', sub: 'rgba(230, 126, 34, 0.15)', title: '不死者', quote: '美丽，强大，不死', icon: 'icon_liver.png' },
+        '专业度': { color: '#2c3e50', sub: 'rgba(44, 62, 80, 0.15)', title: '专家', quote: '高山仰止，景行行止', icon: 'icon_expert.png' },
+        '淫乱度': { color: '#fd79a8', sub: 'rgba(253, 121, 168, 0.15)', title: '魅魔', quote: '色？空？', icon: 'icon_succubus.png' },
+        '六角龙': { color: '#d4af37', sub: 'rgba(212, 175, 55, 0.15)', title: '六角龙', quote: 'suen？', icon: 'icon_dragon.png' },
+        '耕耘者': { color: '#7f8c8d', sub: 'rgba(127, 140, 141, 0.1)', title: '耕耘者', quote: '风里雨里，suen吧等你', icon: 'icon_farmer.png' }
     };
 
-    let radarChart, userAvatarImg = null;
+    let radarChart, userAvatarImg = null, loadedIcons = {}, iconsLoadedCount = 0;
+
+    function preloadIcons() {
+        const keys = Object.keys(configMap);
+        keys.forEach(key => {
+            const img = new Image();
+            img.src = configMap[key].icon;
+            img.onload = () => { iconsLoadedCount++; loadedIcons[key] = img; if(iconsLoadedCount === keys.length) onReady(); };
+            img.onerror = () => { iconsLoadedCount++; console.warn(`Icon missed: ${key}`); if(iconsLoadedCount === keys.length) onReady(); };
+        });
+    }
+
+    function onReady() {
+        document.getElementById('loadMask').style.display = 'none';
+        const btn = document.getElementById('btnExport');
+        btn.disabled = false; btn.innerText = '💾 导出评估报告';
+        renderChart();
+    }
 
     function initInputs() {
         const container = document.getElementById('controls');
         dimNames.forEach((name, i) => {
             container.innerHTML += `
                 <div class="stat-group">
-                    <div class="label-row"><label style="font-weight: 700;">${name}</label>
+                    <div class="label-row"><label style="font-weight: 800; color: #444;">${name}</label>
                     <input type="number" id="n${i+1}" min="1" max="5" step="0.01" value="3.00" class="num-input" oninput="sync(${i+1},'n')"></div>
                     <input type="range" id="v${i+1}" min="1" max="5" step="0.01" value="3.00" oninput="sync(${i+1},'v')">
                 </div>`;
@@ -115,7 +129,7 @@
             reader.onload = (e) => {
                 const img = new Image();
                 img.src = e.target.result;
-                img.onload = () => { userAvatarImg = img; document.getElementById('avatarPreview').src = e.target.result; document.getElementById('avatarPreview').style.display='block'; };
+                img.onload = () => { userAvatarImg = img; document.getElementById('avatarPreview').src = e.target.result; document.getElementById('avatarPreview').style.display='block'; renderChart(); };
             };
             reader.readAsDataURL(file);
         }
@@ -128,18 +142,20 @@
         const zone = document.getElementById('awakeningZone');
         const selector = document.getElementById('titleSelector');
 
-        if (isDragon) { zone.style.display = 'none'; } else {
+        if (isDragon || maxVal < 4.0) { 
+            zone.style.display = 'none'; 
+        } else {
             const winners = [];
             vals.forEach((v, i) => { if(v === maxVal) winners.push(dimNames[i]); });
-            if (winners.length > 1 && maxVal >= 4.0) {
+            if (winners.length > 1) {
                 zone.style.display = 'block';
-                const oldVal = selector.value; selector.innerHTML = '';
+                const current = selector.value; selector.innerHTML = '';
                 winners.forEach(name => {
                     const opt = document.createElement('option');
-                    opt.value = name; opt.innerText = `觉醒成为: ${configMap[name].title}`;
+                    opt.value = name; opt.innerText = `展示天命：${configMap[name].title}`;
                     selector.appendChild(opt);
                 });
-                if (winners.includes(oldVal)) selector.value = oldVal;
+                if (winners.includes(current)) selector.value = current;
             } else { zone.style.display = 'none'; }
         }
         updateTheme();
@@ -149,22 +165,31 @@
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
         const maxVal = Math.max(...vals);
         const zone = document.getElementById('awakeningZone');
-        let cfg;
-        let isAwakened = maxVal >= 4.0;
-
-        if (vals.every(v => v >= 4.5)) { cfg = configMap['六角龙']; isAwakened = true; } 
-        else if (zone.style.display === 'block') { cfg = configMap[document.getElementById('titleSelector').value]; } 
-        else { cfg = configMap[dimNames[vals.indexOf(maxVal)]]; }
-
+        
+        let key;
+        // 逻辑：六角龙(全员4.5+) > 耕耘者(全员<4.0) > 手动选择 > 默认最高项
+        if (vals.every(v => v >= 4.5)) {
+            key = '六角龙';
+        } else if (maxVal < 4.0) {
+            key = '耕耘者';
+        } else if (zone.style.display === 'block') {
+            key = document.getElementById('titleSelector').value;
+        } else {
+            key = dimNames[vals.indexOf(maxVal)];
+        }
+        
+        const cfg = configMap[key];
         document.documentElement.style.setProperty('--theme-color', cfg.color);
-        return { cfg, isAwakened };
+        return { cfg, key };
     }
 
     function renderChart() {
-        const {cfg, isAwakened} = updateTheme();
+        if (iconsLoadedCount < Object.keys(configMap).length) return;
+
+        const {cfg, key} = updateTheme();
         const vals = dimNames.map((_, i) => parseFloat(document.getElementById('n'+(i+1)).value));
-        const username = document.getElementById('username').value || '匿名水友';
         const totalScore = ((vals.reduce((a,b)=>a+b, 0)/30)*100).toFixed(2);
+        const username = document.getElementById('username').value || '匿名水友';
 
         const canvas = document.getElementById('radarCanvas'), ctx = canvas.getContext('2d');
         if (radarChart) radarChart.destroy();
@@ -173,61 +198,53 @@
             id: 'customDecorator',
             afterDraw: (chart) => {
                 const {ctx, width, height} = chart;
+                const Phi = 1.618;
                 ctx.save();
-                
-                // 绘制纯白背景
-                ctx.globalCompositeOperation = 'destination-over';
                 ctx.fillStyle = 'white'; ctx.fillRect(0,0,width,height);
-                ctx.globalCompositeOperation = 'source-over';
-
-                // 1. 用户名装饰 (带阴影)
                 ctx.textAlign = 'center';
-                ctx.shadowColor = 'rgba(0,0,0,0.1)';
-                ctx.shadowBlur = 4;
-                ctx.fillStyle = '#333';
-                ctx.font = '900 24px "PingFang SC", sans-serif';
-                ctx.fillText(username.toUpperCase(), width/2, 45);
-                ctx.shadowBlur = 0;
 
-                // 2. 头像 (带描边)
-                let avatarY = 65;
+                // 1. 用户ID
+                ctx.fillStyle = '#222';
+                ctx.font = '900 28px sans-serif';
+                ctx.fillText(username.toUpperCase(), width/2, 55);
+
+                // 2. 排版高度计算
+                let currentY = 85;
+
+                // 3. 头像
                 if(userAvatarImg) {
+                    const r = 40;
                     ctx.save();
-                    ctx.beginPath(); ctx.arc(width/2, avatarY + 35, 35, 0, Math.PI*2); ctx.clip();
-                    ctx.drawImage(userAvatarImg, width/2 - 35, avatarY, 70, 70);
+                    ctx.beginPath(); ctx.arc(width/2, currentY + r, r, 0, Math.PI*2); ctx.clip();
+                    ctx.drawImage(userAvatarImg, width/2 - r, currentY, r*2, r*2);
                     ctx.restore();
-                    ctx.strokeStyle = cfg.color; ctx.lineWidth = 3;
-                    ctx.beginPath(); ctx.arc(width/2, avatarY + 35, 35, 0, Math.PI*2); ctx.stroke();
+                    ctx.strokeStyle = cfg.color; ctx.lineWidth = 4;
+                    ctx.stroke();
+                    currentY += (r * 2) + 30;
+                } else { currentY += 50; }
+
+                // 4. 称号与标志
+                const iconImg = loadedIcons[key];
+                if (iconImg) {
+                    const iconSize = 90;
+                    ctx.drawImage(iconImg, width/2 - iconSize/2, currentY, iconSize, iconSize);
+                    currentY += iconSize + 15;
                 }
 
-                // 3. 称号与赠言 (视觉中心)
-                if(isAwakened) {
-                    // 称号：艺术黑体 + 字母间距模拟
-                    ctx.fillStyle = cfg.color;
-                    ctx.font = '900 42px "PingFang SC", "Microsoft YaHei"';
-                    ctx.fillText(`【 ${cfg.title} 】`, width/2, avatarY + 135);
-
-                    // 赠言背景条 (淡淡的装饰感)
-                    const textWidth = ctx.measureText(cfg.quote).width + 60;
-                    ctx.fillStyle = 'rgba(0,0,0,0.03)';
-                    ctx.fillRect(width/2 - textWidth/2, avatarY + 155, textWidth, 30);
-
-                    // 赠言：优雅斜体 + 加大间距
-                    ctx.fillStyle = '#555';
-                    ctx.font = 'italic 700 18px "Georgia", serif';
-                    ctx.fillText(`“ ${cfg.quote} ”`, width/2, avatarY + 175);
-                }
-
-                // 4. 底部总分 (巨型字体 + 渐变感效果)
                 ctx.fillStyle = cfg.color;
-                ctx.font = '900 70px "Arial Black"';
-                ctx.fillText(totalScore, width/2, height - 70);
+                ctx.font = '900 48px "PingFang SC"';
+                ctx.fillText(`【 ${cfg.title} 】`, width/2, currentY + 40);
                 
-                ctx.fillStyle = '#999';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.letterSpacing = "2px";
-                ctx.fillText('POWER LEVEL SUMMARY', width/2, height - 40);
-                
+                ctx.fillStyle = '#666';
+                ctx.font = 'italic 800 20px "Georgia", serif';
+                ctx.fillText(`“ ${cfg.quote} ”`, width/2, currentY + 75);
+
+                // 5. 底部总分
+                ctx.fillStyle = cfg.color;
+                ctx.font = '900 80px "Arial Black"';
+                ctx.fillText(totalScore, width/2, height - 75);
+                ctx.fillStyle = '#bbb'; ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('IDENTIFIED BY GENESIS EVALUATION', width/2, height - 45);
                 ctx.restore();
             }
         };
@@ -238,25 +255,27 @@
                 labels: dimNames,
                 datasets: [{
                     data: vals,
-                    backgroundColor: cfg.sub,
-                    borderColor: cfg.color,
-                    borderWidth: 5,
-                    pointBackgroundColor: cfg.color,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5
+                    backgroundColor: cfg.sub, borderColor: cfg.color, borderWidth: 6,
+                    pointBackgroundColor: cfg.color, pointBorderColor: '#fff', pointRadius: 6
                 }]
             },
             options: {
                 responsive: false,
-                layout: { padding: { top: 220, bottom: 120 } },
+                layout: { padding: { top: 380, bottom: 150, left: 30, right: 30 } },
                 scales: { 
                     r: { 
-                        min: 0, max: 5,
-                        ticks: { display: false },
-                        grid: { color: 'rgba(0,0,0,0.05)', lineWidth: 1.5 },
-                        angleLines: { color: 'rgba(0,0,0,0.05)' },
-                        pointLabels: { font: { size: 16, weight: '900' }, color: '#444' }
+                        min: 0, 
+                        max: 5, // 强制最大值为5
+                        suggestedMax: 5,
+                        beginAtZero: true,
+                        ticks: { display: false, stepSize: 1 },
+                        grid: { color: 'rgba(0,0,0,0.08)', lineWidth: 1 },
+                        angleLines: { color: 'rgba(0,0,0,0.08)' },
+                        pointLabels: { 
+                            font: { size: 17, weight: '900' }, 
+                            color: '#444',
+                            padding: 15 // 增加标签间距防止压线
+                        }
                     } 
                 },
                 plugins: { legend: { display: false } }
@@ -270,12 +289,12 @@
         setTimeout(() => {
             const link = document.createElement('a');
             link.download = `战力图_${document.getElementById('username').value}.png`;
-            link.href = document.getElementById('radarCanvas').toDataURL('image/png');
+            link.href = document.getElementById('radarCanvas').toDataURL('image/png', 1.0);
             link.click();
         }, 200);
     }
 
-    window.onload = () => { initInputs(); renderChart(); };
+    window.onload = () => { initInputs(); preloadIcons(); };
 </script>
 </body>
 </html>
